@@ -1,83 +1,76 @@
 package sample;
 
+import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
-import javafx.fxml.Initializable;
-import javafx.scene.control.Button;
-import javafx.scene.control.TextField;
+import javafx.scene.control.*;
+import javafx.scene.layout.Pane;
+import jdk.nashorn.internal.runtime.ParserException;
 
-import java.net.URL;
-import java.util.ResourceBundle;
+import javax.script.ScriptEngine;
+import javax.script.ScriptEngineManager;
+import javax.script.ScriptException;
 
-public class Controller implements Initializable {
+public class Controller {
 
     @FXML
     private Button buttonOperationsResult;
-
     @FXML
     private Button buttonOperationsAddition;
-
     @FXML
     private Button buttonOperationsANS;
-
     @FXML
     private Button buttonOperationsProduct;
-
     @FXML
     private Button buttonOperationsPoint;
-
     @FXML
     private Button buttonOperationsClean;
-
     @FXML
     private Button buttonOperationsSubstraction;
-
     @FXML
     private Button buttonOperations4;
-
     @FXML
     private Button buttonOperations5;
-
     @FXML
     private Button buttonOperations2;
-
     @FXML
     private Button buttonOperations3;
-
     @FXML
     private Button buttonOperations0;
-
     @FXML
     private Button buttonOperations1;
-
     @FXML
     private Button buttonOperationsDivide;
-
     @FXML
     private Button buttonOperationsPercentage;
-
     @FXML
     private Button buttonOperationsDelete;
-
     @FXML
     private Button buttonOperations8;
-
     @FXML
     private Button buttonOperations9;
-
     @FXML
     private Button buttonOperations6;
-
     @FXML
     private TextField textfieldResult;
-
     @FXML
     private Button buttonOperations7;
+    @FXML
+    private ColorPicker colorPicker;
+    @FXML
+    private Pane panelBackgroud;
+    @FXML
+    private Pane paneOperations;
+    @FXML
+    private Tab tabOperations;
+    @FXML
+    private TextArea textareaHistory;
 
-    private Boolean operationOn = false;
+    private Boolean operationOn = true;
+    private double lastOperation = 0;
 
     public void cleanScreen() {
         textfieldResult.setText("");
-        operationOn = false;
+        operationOn = true;
     }
 
     public void deleteValue() {
@@ -86,14 +79,10 @@ public class Controller implements Initializable {
         }
     }
 
-    public void makeOperation() {
-        String sus = textfieldResult.getText();
-        for (int i = 0; i < operationsInLine; i++) {
-            int pos = sus.indexOf("+");
-        }
-    }
-
     public void getLastResult() {
+        if (!(lastOperation == 0)) {
+            textfieldResult.setText(textfieldResult.getText() + lastOperation);
+        }
     }
 
     public void addValue(javafx.event.ActionEvent actionEvent) {
@@ -101,26 +90,39 @@ public class Controller implements Initializable {
         operationOn = true;
     }
 
-    private int operationsInLine = 0;
-
     public void addOperation(javafx.event.ActionEvent actionEvent) {
         if (operationOn) {
             textfieldResult.setText(textfieldResult.getText() + ((Button) actionEvent.getSource()).getText());
             operationOn = false;
-            operationsInLine++;
         }
     }
 
-    @Override
-    public void initialize(URL location, ResourceBundle resources) {
-        String s = "5+6+4-3";
-        System.out.println(s);
-        s = s.substring(0, s.indexOf("+"));
-        System.out.println(s);
+    public void makeOperation() {
+        String operationS = textfieldResult.getText();
 
-        for (int i = 0; i < 3; i++) {
-
+        ScriptEngineManager manager = new ScriptEngineManager();
+        ScriptEngine engine = manager.getEngineByName("js");
+        try {
+            Object operation = engine.eval(textfieldResult.getText().replaceAll("x", "*"));
+            textfieldResult.setText("" + operation);
+            textareaHistory.setText(operationS + " = " + textfieldResult.getText() + "\n" + textareaHistory.getText());
+            lastOperation = Double.parseDouble(textfieldResult.getText());
+        } catch (ScriptException | ParserException e) {
+            textfieldResult.setText("");
         }
+    }
+
+    @FXML
+    private void changeColor(ActionEvent event) {
+        String n = colorPicker.getValue().toString().substring(2, colorPicker.getValue().toString().length() - 2);
+        paneOperations.setStyle("-fx-background-color: #" + n);
+        panelBackgroud.setStyle("-fx-background-color: #" + n);
+        tabOperations.setStyle("-fx-background-color: #" + n);
+    }
+
+    @FXML
+    private void goToGitHub() {
+
     }
 }
 
